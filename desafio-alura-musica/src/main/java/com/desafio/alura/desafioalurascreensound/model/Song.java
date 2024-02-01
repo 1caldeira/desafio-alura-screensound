@@ -15,6 +15,7 @@ public class Song {
     public Song() {
     }
 
+
     public Song(String songTitle, Artist artist) {
         this.songTitle = songTitle;
         this.artist = artist;

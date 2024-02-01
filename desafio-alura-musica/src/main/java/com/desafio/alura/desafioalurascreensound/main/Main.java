@@ -28,8 +28,8 @@ public class Main {
                                         
                     1- Register artists
                     2- Register songs
-                    3- Show all songs
-                    4- Show all songs by artist
+                    3- Show all songs by artist
+                    4- Show all songs
                                     
                     0 - Sair
                     """;
@@ -46,10 +46,10 @@ public class Main {
                     registerSongs();
                     break;
                 case 3:
-                    showSongs();
+                    showAllSongsByArtist();
                     break;
                 case 4:
-                    searchSongsByArtist();
+                    showAllSongs();
                     break;
                 case 0:
                     System.out.println("Exiting...");
@@ -63,33 +63,9 @@ public class Main {
     private void getArtists(){
         artistList = repository.findAll();
     }
-    private void searchSongsByArtist() {
-    }
 
-    private void showSongs() {
-        System.out.println("From which artist do you wish to find songs?");
-        getArtists();
-        artistList.forEach(System.out::println);
-
-        
-    }
-
-    private void registerSongs() {
-        System.out.println("What is the title of the song you wish to register?");
-        var songTitle = sc.nextLine();
-        System.out.println("Whose song is this?");
-        var artistName = sc.nextLine();
-        getArtists();
-        for (Artist a:artistList) {
-            if(a.getName().equalsIgnoreCase(artistName)){
-                Song song = new Song(songTitle,a);
-                a.getSongList().add(song);
-                repository.save(a);
-            }else{
-                System.out.println("Artist not found!");
-            }
-        }
-        
+    private Artist getArtist(String name){
+        return repository.findByName(name);
     }
 
     private void registerArtists() {
@@ -99,5 +75,36 @@ public class Main {
         var type = sc.nextLine();
         Artist artist = new Artist(name, ArtistType.fromString(type));
         repository.save(artist);
+    }
+
+    private void registerSongs() {
+        System.out.println("What is the title of the song you wish to register?");
+        var songTitle = sc.nextLine();
+        System.out.println("Whose song is this?");
+        var artistName = sc.nextLine();
+        Artist artist = repository.findArtistByNameContainsIgnoreCase(artistName);
+        if(artist != null) {
+            Song song = new Song(songTitle, artist);
+            artist.getSongList().add(song);
+            repository.save(artist);
+        }else{
+            System.out.println("Artist not found!");
+        }
+    }
+
+    private void showAllSongsByArtist() {
+        System.out.println("From which artist do you wish to find songs?");
+        getArtists();
+        artistList.forEach(System.out::println);
+        var artistSearch = sc.nextLine();
+        List<Song> artistSongList = repository.findSongsByArtist(artistSearch);
+        artistSongList.forEach(System.out::println);
+        }
+
+    private void showAllSongs() {
+        getArtists();
+        for (Artist a:artistList) {
+            a.getSongList().forEach(System.out::println);
+        }
     }
 }
